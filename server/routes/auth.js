@@ -1,9 +1,10 @@
+
 const router = require('express').Router();
 const { user } = require('../models/user');
+const joi = require('joi');
 const bcrypt = require('bcrypt');
 
-
-router.post("/login", async (req, res) => {
+router.post("/", async (req, res) => {
     try {
         const {error} = validate(req.body);
         if (error)
@@ -19,12 +20,17 @@ router.post("/login", async (req, res) => {
 
         const token = user.generateAuthToken();
         res.status(200).send({data: token,message: "Logged in successfully"});
-
     } catch (error) {
        res.status(500).send({ message: "Internal server error!" }); 
     }
 })
 
-
+const validate = (data) => {
+    const schema = joi.object({
+        email: joi.string().email().required().label('Email'),
+        password: joi.string().required().label('Password')
+    });
+    return schema.validate(data)
+}
 
 module.exports = router;
